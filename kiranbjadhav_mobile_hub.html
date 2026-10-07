@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#090d16">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Kiranbjadhav - Mobile Utility Hub</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Fonts & Material Symbols -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+  <style>
+    /* Absolute Lock: No page scrolling or elastic bounce on viewport */
+    html, body {
+      height: 100%;
+      height: 100dvh;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #030712;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+      overscroll-behavior: none;
+    }
+
+    input, textarea, select {
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .font-mono-num {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Invisible scrollbars while retaining touch scrollability */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Micro-haptics / tactile feedback animation */
+    .tap-btn {
+      transition: transform 0.08s ease, filter 0.08s ease;
+      active:scale-95;
+    }
+    .tap-btn:active {
+      transform: scale(0.94);
+      filter: brightness(0.9);
+    }
+
+    /* Safe area padding utilities */
+    .safe-top {
+      padding-top: max(env(safe-area-inset-top, 0px), 8px);
+    }
+    .safe-bottom {
+      padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
+    }
+  </style>
+</head>
+<body class="flex justify-center items-center bg-slate-950 text-slate-100">
+
+  <!-- ================= MASTER APP CONTAINER (100% SCREEN FIT) ================= -->
+  <div class="relative w-full max-w-md h-[100dvh] flex flex-col bg-slate-900 border-x border-slate-800/60 shadow-2xl overflow-hidden select-none">
+    
+    <!-- 1. TOP HEADER & STATUS BAR (FIXED HEIGHT) -->
+    <header class="safe-top shrink-0 bg-slate-900/95 border-b border-slate-800/80 px-4 pb-2 z-20 flex items-center justify-between">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-md shadow-emerald-500/20">
+          <span class="material-symbols-rounded text-slate-950 text-lg font-bold">handyman</span>
+        </div>
+        <div>
+          <h1 id="screen-title" class="text-sm font-extrabold tracking-tight text-white leading-tight">Calculator</h1>
+          <div class="flex items-center space-x-1.5 text-[10px] text-slate-400">
+            <span id="live-system-time" class="font-mono-num font-semibold text-emerald-400">--:--</span>
+            <span>•</span>
+            <span class="text-slate-400 font-semibold tracking-wide text-emerald-400/90">Kiranbjadhav</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-1">
+        <button onclick="toggleInfo(true)" aria-label="About" class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center tap-btn">
+          <span class="material-symbols-rounded text-base">info</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 2. MAIN VIEWPORT (FILLS 100% REMAINING SPACE) -->
+    <main class="flex-1 relative overflow-hidden flex flex-col">
+
+      <!-- ================= TAB 1: CALCULATOR (ZERO SCROLL, AUTO-FIT GRID) ================= -->
+      <section id="tab-calculator" class="h-full flex flex-col p-3 space-y-2.5">
+        <!-- Display area: adjusts to available upper height -->
+        <div class="bg-slate-950/70 border border-slate-800 rounded-3xl p-4 flex flex-col justify-end text-right min-h-[105px] max-h-[140px] shrink-0 shadow-inner">
+          <div id="calc-tape" class="text-xs font-mono-num text-slate-400 h-5 overflow-hidden whitespace-nowrap text-ellipsis tracking-wider"></div>
+          <div id="calc-val" class="text-4xl sm:text-5xl font-mono-num font-bold text-white tracking-tight break-all mt-1 leading-none">0</div>
+        </div>
+
+        <!-- 5-Row Responsive Keypad: Fills 100% remaining vertical space -->
+        <div class="flex-1 grid grid-cols-4 grid-rows-5 gap-2 text-lg font-semibold font-mono-num">
+          <!-- Row 1 -->
+          <button onclick="calcClear()" class="tap-btn bg-rose-500/20 text-rose-300 rounded-2xl flex items-center justify-center font-bold">AC</button>
+          <button onclick="calcDel()" class="tap-btn bg-slate-800 text-slate-300 rounded-2xl flex items-center justify-center">
+            <span class="material-symbols-rounded text-xl">backspace</span>
+          </button>
+          <button onclick="calcInput('%')" class="tap-btn bg-slate-800 text-emerald-400 rounded-2xl flex items-center justify-center">%</button>
+          <button onclick="calcInput('/')" class="tap-btn bg-emerald-600/30 text-emerald-300 rounded-2xl flex items-center justify-center text-xl">÷</button>
+
+          <!-- Row 2 -->
+          <button onclick="calcInput('7')" class="tap-btn bg-slate-800/80 text-white rounded-2xl flex items-center justify-center">7</button>
+          <button onclick="calcInput('8')" class="tap-btn bg-slate-800/80 text-white rounded-2xl flex items-center justify-center">8</button>
+          <button onclick="calcInput('9')" class="tap-btn bg-slate-800/80 text-white rounded-2xl flex items-center justify-center">9</button>
+          <button onclick="calcInput('*')" class="tap-btn bg-emerald-600/30 text-emerald-300 rounded-2xl flex items-center justify-center text-xl">×</button>
+
+          <!-- Row 3 -->
+          <button onclick="calcInput('4')" class="tap-btn bg-slate-800/80 text-white rounded-2xl flex items-center justify-center">4</button>
+          <button onclick="calcInput('5')" class="tap-btn bg-slate-800/80 text-white rounded-2xl flex items-center justify-center">5</button>
+          <button onclick="calcInput('6')" class="tap-btn bg-slate-800/80 text-white rounded-2xl flex items-center justify-center">6</button>
+          <button onclick="calcInput('-')" class="tap-btn bg-emerald-600/30 text-emerald-300 rounded-2xl flex items-center justify-center text-xl">−</button>
+
+          <!-- Row 4 -->
+          <button onclick="calcInput('1')" class="tap-btn bg-slate-800/80 text-white rounded-2xl flex items-center justify-center">1</button>
+          <button onclick="calcInput('2')" class="tap-btn bg-slate-800/80 text-white rounded-2xl flex items-center justify-center">2</button>
+          <button onclick="calcInput('3')" class="tap-btn bg-slate-800/80 text-white rounded-2xl flex items-center justify-center">3</button>
+          <button onclick="calcInput('+')" class="tap-btn bg-emerald-600/30 text-emerald-300 rounded-2xl flex items-center justify-center text-xl">+</button>
+
+          <!-- Row 5 -->
+          <button onclick="calcInput('0')" class="tap-btn col-span-2 bg-slate-800/80 text-white rounded-2xl flex items-center justify-center">0</button>
+          <button onclick="calcInput('.')" class="tap-btn bg-slate-800/80 text-white rounded-2xl flex items-center justify-center font-bold">.</button>
+          <button onclick="calcSolve()" class="tap-btn bg-emerald-500 text-slate-950 font-bold rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/25">=</button>
+        </div>
+      </section>
+
+      <!-- ================= TAB 2: AGE CALCULATOR SUITE ================= -->
+      <section id="tab-age" class="hidden h-full flex flex-col p-3 overflow-hidden">
+        <!-- Horizontal Scrollable Mode Pills (Fixed) -->
+        <div class="shrink-0 flex space-x-1.5 overflow-x-auto no-scrollbar pb-2 pt-0.5">
+          <button onclick="setAgeSubMode('exact')" id="sub-btn-exact" class="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500 text-slate-950 shadow-sm tap-btn">Exact Age</button>
+          <button onclick="setAgeSubMode('compare')" id="sub-btn-compare" class="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-400 tap-btn">Compare</button>
+          <button onclick="setAgeSubMode('datecalc')" id="sub-btn-datecalc" class="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-400 tap-btn">Date +/-</button>
+          <button onclick="setAgeSubMode('milestones')" id="sub-btn-milestones" class="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-400 tap-btn">Milestones</button>
+          <button onclick="setAgeSubMode('pet')" id="sub-btn-pet" class="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-400 tap-btn">Pet Years</button>
+        </div>
+
+        <!-- Scrollable Inner Viewport for Age Tools -->
+        <div class="flex-1 overflow-y-auto no-scrollbar space-y-3 pb-2">
+          
+          <!-- Mode A: Exact Age -->
+          <div id="sub-exact" class="space-y-3">
+            <div class="bg-slate-800/60 border border-slate-700/60 p-3.5 rounded-2xl space-y-2.5">
+              <div>
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-emerald-400 mb-1">Date of Birth (DOB)</label>
+                <input type="date" id="age-dob" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500">
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Age as of (Default Today)</label>
+                <input type="date" id="age-target-date" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500">
+              </div>
+              <button onclick="runExactAgeCalc()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs uppercase tracking-wider tap-btn flex items-center justify-center gap-1">
+                <span>Calculate Exact Age</span>
+                <span class="material-symbols-rounded text-sm">arrow_forward</span>
+              </button>
+            </div>
+
+            <!-- Results Card -->
+            <div id="exact-result-card" class="hidden space-y-2.5">
+              <!-- Y/M/D Hero -->
+              <div class="bg-gradient-to-br from-emerald-950/30 to-slate-800/80 border border-emerald-500/30 p-3.5 rounded-2xl text-center">
+                <span class="text-[10px] uppercase font-bold text-emerald-400 tracking-wider">Exact Chronological Age</span>
+                <div class="grid grid-cols-3 gap-2 mt-2 font-mono-num">
+                  <div class="bg-slate-900/80 p-2 rounded-xl">
+                    <span id="res-years" class="text-2xl font-bold text-white">0</span>
+                    <p class="text-[9px] text-slate-400 uppercase">Years</p>
+                  </div>
+                  <div class="bg-slate-900/80 p-2 rounded-xl">
+                    <span id="res-months" class="text-2xl font-bold text-white">0</span>
+                    <p class="text-[9px] text-slate-400 uppercase">Months</p>
+                  </div>
+                  <div class="bg-slate-900/80 p-2 rounded-xl">
+                    <span id="res-days" class="text-2xl font-bold text-white">0</span>
+                    <p class="text-[9px] text-slate-400 uppercase">Days</p>
+                  </div>
+                </div>
+                <div class="mt-2 pt-2 border-t border-slate-700/60 flex justify-between items-center text-[11px] font-mono-num text-emerald-300 px-1">
+                  <span>Live Alive Counter:</span>
+                  <span id="live-time-ticker" class="font-bold">--</span>
+                </div>
+              </div>
+
+              <!-- Zodiacs -->
+              <div class="grid grid-cols-2 gap-2">
+                <div class="bg-slate-800/50 border border-slate-700/50 p-2.5 rounded-xl">
+                  <div class="flex items-center gap-1 text-amber-400 text-xs font-bold">
+                    <span id="res-zodiac-icon" class="text-base">✨</span>
+                    <span>Sun Zodiac</span>
+                  </div>
+                  <p id="res-zodiac-name" class="text-xs font-bold text-white mt-1">--</p>
+                  <p id="res-zodiac-trait" class="text-[9px] text-slate-400">--</p>
+                </div>
+                <div class="bg-slate-800/50 border border-slate-700/50 p-2.5 rounded-xl">
+                  <div class="flex items-center gap-1 text-rose-400 text-xs font-bold">
+                    <span id="res-chinese-icon" class="text-base">🐉</span>
+                    <span>Chinese Zodiac</span>
+                  </div>
+                  <p id="res-chinese-name" class="text-xs font-bold text-white mt-1">--</p>
+                  <p id="res-chinese-element" class="text-[9px] text-slate-400">--</p>
+                </div>
+              </div>
+
+              <!-- Next Birthday Countdown & Forecast -->
+              <div class="bg-slate-800/50 border border-slate-700/50 p-3 rounded-xl space-y-2">
+                <div class="flex justify-between items-center text-xs">
+                  <span class="text-slate-300 font-semibold text-[11px]">Next Birthday:</span>
+                  <span id="res-nextbday-date" class="font-bold text-emerald-400 font-mono-num">--</span>
+                </div>
+                <div class="flex justify-between items-center text-xs bg-slate-900/60 p-2 rounded-lg font-mono-num">
+                  <span class="text-slate-400 text-[11px]">Days Remaining:</span>
+                  <span id="res-nextbday-countdown" class="text-white font-bold">-- days</span>
+                </div>
+                <div>
+                  <span class="text-[9px] uppercase font-bold text-slate-400">Next 5 Years Birthday Weekdays</span>
+                  <div id="res-bday-forecast" class="grid grid-cols-5 gap-1 text-center mt-1 text-[9px] font-mono-num"></div>
+                </div>
+              </div>
+
+              <!-- Life estimates -->
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="bg-slate-800/40 p-2 rounded-xl border border-slate-700/40">
+                  <span class="text-slate-400 text-[9px] uppercase block">Heartbeats (~80bpm)</span>
+                  <span id="res-stat-heart" class="font-mono-num font-bold text-rose-300">--</span>
+                </div>
+                <div class="bg-slate-800/40 p-2 rounded-xl border border-slate-700/40">
+                  <span class="text-slate-400 text-[9px] uppercase block">Breaths (~16bpm)</span>
+                  <span id="res-stat-breath" class="font-mono-num font-bold text-cyan-300">--</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mode B: Compare -->
+          <div id="sub-compare" class="hidden space-y-3">
+            <div class="bg-slate-800/60 border border-slate-700/60 p-3.5 rounded-2xl space-y-2.5">
+              <div>
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-emerald-400 mb-1">Person A (e.g. You)</label>
+                <input type="date" id="compare-p1-dob" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-cyan-400 mb-1">Person B (Partner / Friend)</label>
+                <input type="date" id="compare-p2-dob" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+              </div>
+              <button onclick="runCompareCalc()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs uppercase tracking-wider tap-btn">
+                Compare Difference
+              </button>
+            </div>
+
+            <div id="compare-result-card" class="hidden bg-slate-800/70 border border-emerald-500/30 p-3.5 rounded-2xl text-center space-y-2">
+              <span id="comp-banner" class="text-xs font-bold text-emerald-400 block">--</span>
+              <div class="grid grid-cols-3 gap-2 font-mono-num">
+                <div class="bg-slate-900/80 p-2 rounded-xl">
+                  <span id="comp-diff-y" class="text-xl font-bold text-white">0</span>
+                  <p class="text-[9px] text-slate-400 uppercase">Years</p>
+                </div>
+                <div class="bg-slate-900/80 p-2 rounded-xl">
+                  <span id="comp-diff-m" class="text-xl font-bold text-white">0</span>
+                  <p class="text-[9px] text-slate-400 uppercase">Months</p>
+                </div>
+                <div class="bg-slate-900/80 p-2 rounded-xl">
+                  <span id="comp-diff-d" class="text-xl font-bold text-white">0</span>
+                  <p class="text-[9px] text-slate-400 uppercase">Days</p>
+                </div>
+              </div>
+              <p id="comp-total-days" class="text-xs text-slate-400 font-mono-num pt-1">Total: 0 days</p>
+            </div>
+          </div>
+
+          <!-- Mode C: Date Math -->
+          <div id="sub-datecalc" class="hidden space-y-3">
+            <div class="bg-slate-800/60 border border-slate-700/60 p-3.5 rounded-2xl space-y-2.5">
+              <div>
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-emerald-400 mb-1">Starting Date</label>
+                <input type="date" id="datecalc-start" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[9px] uppercase text-slate-400 mb-1">Action</label>
+                  <select id="datecalc-op" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white">
+                    <option value="add">Add (+)</option>
+                    <option value="sub">Subtract (−)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[9px] uppercase text-slate-400 mb-1">Unit</label>
+                  <select id="datecalc-unit" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white">
+                    <option value="days">Days</option>
+                    <option value="weeks">Weeks</option>
+                    <option value="months">Months</option>
+                    <option value="years">Years</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[9px] uppercase text-slate-400 mb-1">Quantity</label>
+                <input type="number" id="datecalc-amount" value="30" min="1" max="9999" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono-num">
+              </div>
+              <button onclick="runDateDeltaCalc()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs uppercase tracking-wider tap-btn">
+                Compute Target Date
+              </button>
+            </div>
+
+            <div id="datecalc-result-card" class="hidden bg-slate-800/70 border border-emerald-500/30 p-3.5 rounded-2xl text-center">
+              <span class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Target Date</span>
+              <h3 id="datecalc-res-date" class="text-xl font-bold font-mono-num text-white mt-0.5">--</h3>
+              <p id="datecalc-res-day" class="text-xs text-emerald-400 font-semibold">--</p>
+            </div>
+          </div>
+
+          <!-- Mode D: Milestones -->
+          <div id="sub-milestones" class="hidden space-y-3">
+            <div class="bg-slate-800/60 border border-slate-700/60 p-3.5 rounded-2xl space-y-2">
+              <label class="block text-[10px] font-bold uppercase tracking-wider text-emerald-400">Date of Birth</label>
+              <div class="flex gap-2">
+                <input type="date" id="milestones-dob" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                <button onclick="runMilestonesCalc()" class="px-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs uppercase tap-btn">Find</button>
+              </div>
+            </div>
+
+            <div id="milestones-card" class="hidden space-y-2">
+              <div class="bg-slate-800/50 border border-purple-500/30 p-3 rounded-xl flex items-center justify-between">
+                <div>
+                  <span class="text-[9px] font-bold uppercase text-purple-400">Next Half-Birthday</span>
+                  <h4 id="ms-halfbday" class="text-xs font-bold text-white font-mono-num mt-0.5">--</h4>
+                </div>
+                <span class="material-symbols-rounded text-xl text-purple-400">cake</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="bg-slate-800/40 p-2.5 rounded-xl border border-slate-700/40">
+                  <span class="text-cyan-400 text-[9px] uppercase font-bold">10,000th Day</span>
+                  <p id="ms-10k" class="font-mono-num font-bold text-white mt-1">--</p>
+                  <span id="ms-10k-tag" class="text-[9px] text-slate-400">--</span>
+                </div>
+                <div class="bg-slate-800/40 p-2.5 rounded-xl border border-slate-700/40">
+                  <span class="text-amber-400 text-[9px] uppercase font-bold">20,000th Day</span>
+                  <p id="ms-20k" class="font-mono-num font-bold text-white mt-1">--</p>
+                  <span id="ms-20k-tag" class="text-[9px] text-slate-400">--</span>
+                </div>
+              </div>
+              <div class="bg-slate-800/40 p-2.5 rounded-xl border border-slate-700/40 flex justify-between items-center text-xs">
+                <div>
+                  <span class="text-emerald-400 text-[9px] uppercase font-bold block">1 Billionth Second</span>
+                  <span id="ms-billion" class="font-mono-num font-bold text-white">--</span>
+                </div>
+                <span id="ms-billion-tag" class="text-[9px] text-slate-400">--</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mode E: Pet Age -->
+          <div id="sub-pet" class="hidden space-y-3">
+            <div class="bg-slate-800/60 border border-slate-700/60 p-3.5 rounded-2xl space-y-3">
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="setPetChoice('dog')" id="pet-choice-dog" class="py-2 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950 flex items-center justify-center gap-1.5 tap-btn">
+                  <span>🐕</span><span>Dog</span>
+                </button>
+                <button onclick="setPetChoice('cat')" id="pet-choice-cat" class="py-2 rounded-xl text-xs font-bold bg-slate-900 text-slate-400 tap-btn flex items-center justify-center gap-1.5">
+                  <span>🐈</span><span>Cat</span>
+                </button>
+              </div>
+
+              <div id="dog-size-container">
+                <label class="block text-[9px] uppercase text-slate-400 mb-1">Breed Category</label>
+                <select id="dog-size-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white" onchange="calcPetEquiv()">
+                  <option value="small">Small Dog (&lt; 20 lbs)</option>
+                  <option value="medium" selected>Medium Dog (21 - 50 lbs)</option>
+                  <option value="large">Large / Giant (&gt; 50 lbs)</option>
+                </select>
+              </div>
+
+              <div>
+                <div class="flex justify-between items-center mb-1 text-xs">
+                  <span class="text-[9px] uppercase text-slate-400">Pet Age in Years</span>
+                  <span id="pet-slider-val" class="font-bold text-emerald-400 font-mono-num">3 years</span>
+                </div>
+                <input type="range" id="pet-slider" min="1" max="20" value="3" oninput="calcPetEquiv()" class="w-full accent-emerald-500">
+              </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-amber-950/30 to-slate-800/80 border border-amber-500/30 p-4 rounded-2xl text-center space-y-1">
+              <span class="text-[9px] uppercase tracking-wider text-amber-400 font-bold">Human Age Equivalent</span>
+              <div id="pet-human-val" class="text-3xl font-extrabold text-white font-mono-num">28</div>
+              <p id="pet-stage-val" class="text-xs text-slate-300">Young Adult</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ================= TAB 3: NOTEPAD ================= -->
+      <section id="tab-notes" class="hidden h-full flex flex-col p-3 space-y-2.5 overflow-hidden">
+        <!-- Search & New note bar -->
+        <div class="shrink-0 flex gap-2">
+          <div class="relative flex-1">
+            <span class="material-symbols-rounded absolute left-3 top-2.5 text-slate-400 text-lg">search</span>
+            <input 
+              type="text" 
+              id="notes-search" 
+              placeholder="Search notes..." 
+              oninput="filterNotesList()" 
+              class="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            />
+          </div>
+          <button 
+            onclick="openNoteModal()" 
+            class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-3.5 rounded-xl text-xs tap-btn flex items-center gap-1 shadow-md shadow-emerald-500/20"
+          >
+            <span class="material-symbols-rounded text-base">add</span>
+            <span>New</span>
+          </button>
+        </div>
+
+        <!-- Scrollable note cards -->
+        <div id="notes-container" class="flex-1 overflow-y-auto no-scrollbar space-y-2.5 pb-2">
+          <!-- Dynamic cards -->
+        </div>
+
+        <div id="notes-none" class="hidden flex-1 flex flex-col items-center justify-center text-slate-500 text-center p-4">
+          <span class="material-symbols-rounded text-4xl mb-1 text-slate-600">edit_note</span>
+          <p class="text-xs">No notes here yet. Click '+ New' to add one!</p>
+        </div>
+      </section>
+
+      <!-- ================= TAB 4: ALARM CLOCK ================= -->
+      <section id="tab-alarm" class="hidden h-full flex flex-col p-3 space-y-3 overflow-hidden">
+        <!-- Digital clock hero (Fixed height) -->
+        <div class="shrink-0 bg-gradient-to-b from-slate-800/80 to-slate-900 border border-slate-700/70 rounded-3xl p-4 text-center shadow-lg">
+          <span class="text-[10px] uppercase font-bold tracking-widest text-emerald-400">Current Time</span>
+          <div id="alarm-live-time" class="text-4xl font-mono-num font-extrabold text-white tracking-tight mt-1 leading-none">
+            00:00:00
+          </div>
+          <p id="alarm-live-date" class="text-xs text-slate-400 mt-1">--</p>
+        </div>
+
+        <!-- Add alarm control (Fixed height) -->
+        <div class="shrink-0 bg-slate-800/50 border border-slate-700/60 rounded-2xl p-3 space-y-2">
+          <span class="text-xs font-semibold text-slate-300 block">Add New Alarm</span>
+          <div class="flex gap-2">
+            <input 
+              type="time" 
+              id="alarm-input-time"
+              class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white font-mono-num focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            />
+            <input 
+              type="text" 
+              id="alarm-input-label"
+              placeholder="Label (e.g. Wake up)"
+              maxlength="20"
+              class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            />
+            <button 
+              onclick="createNewAlarm()"
+              class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-3 rounded-xl tap-btn flex items-center justify-center shadow-md shadow-emerald-500/20"
+            >
+              <span class="material-symbols-rounded text-lg">add</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Scrollable active alarms -->
+        <div class="flex-1 flex flex-col min-h-0">
+          <div class="flex justify-between items-center px-1 pb-1.5 text-xs text-slate-400">
+            <span class="font-semibold uppercase text-[10px] tracking-wider">Scheduled</span>
+            <span id="alarm-badge-count" class="text-[10px] font-mono-num">0 set</span>
+          </div>
+          <div id="alarm-list-container" class="flex-1 overflow-y-auto no-scrollbar space-y-2 pb-2">
+            <!-- Dynamic alarms injected -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 5: STOPWATCH ================= -->
+      <section id="tab-stopwatch" class="hidden h-full flex flex-col p-3 space-y-3 overflow-hidden">
+        <!-- Main timer display (Fixed height) -->
+        <div class="shrink-0 bg-slate-800/60 border border-slate-700/70 rounded-3xl p-5 flex flex-col items-center justify-center text-center shadow-inner">
+          <div class="flex justify-center items-baseline space-x-1 font-mono-num text-white">
+            <span id="sw-min" class="text-4xl sm:text-5xl font-bold tracking-tight">00</span>
+            <span class="text-2xl text-emerald-400 font-bold">:</span>
+            <span id="sw-sec" class="text-4xl sm:text-5xl font-bold tracking-tight">00</span>
+            <span class="text-2xl text-emerald-400 font-bold">.</span>
+            <span id="sw-ms" class="text-2xl font-semibold text-slate-400 w-10 text-left">00</span>
+          </div>
+          <span class="text-[10px] uppercase tracking-widest text-slate-400 mt-1 font-semibold">Millisecond Stopwatch</span>
+        </div>
+
+        <!-- Action buttons (Fixed height) -->
+        <div class="shrink-0 grid grid-cols-3 gap-2">
+          <button 
+            id="sw-btn-lap" 
+            onclick="triggerSwLap()" 
+            disabled 
+            class="py-3 bg-slate-800 text-slate-400 disabled:opacity-40 rounded-2xl font-bold text-xs tap-btn flex items-center justify-center gap-1"
+          >
+            <span class="material-symbols-rounded text-base">flag</span>
+            <span>Lap</span>
+          </button>
+
+          <button 
+            id="sw-btn-toggle" 
+            onclick="toggleSwRun()" 
+            class="py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-2xl text-xs tap-btn flex items-center justify-center gap-1 shadow-lg shadow-emerald-500/25"
+          >
+            <span id="sw-icon-toggle" class="material-symbols-rounded text-base">play_arrow</span>
+            <span id="sw-text-toggle">Start</span>
+          </button>
+
+          <button 
+            id="sw-btn-reset" 
+            onclick="triggerSwReset()" 
+            class="py-3 bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 rounded-2xl font-bold text-xs tap-btn flex items-center justify-center gap-1"
+          >
+            <span class="material-symbols-rounded text-base">replay</span>
+            <span>Reset</span>
+          </button>
+        </div>
+
+        <!-- Scrollable Laps Container -->
+        <div class="flex-1 bg-slate-950/70 border border-slate-800 rounded-2xl p-2.5 flex flex-col min-h-0 overflow-hidden">
+          <div class="flex justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2 pb-1.5 border-b border-slate-800">
+            <span>Lap #</span>
+            <span>Lap Time</span>
+            <span>Split Time</span>
+          </div>
+          <div id="sw-laps-list" class="flex-1 overflow-y-auto no-scrollbar space-y-1.5 pt-1.5 text-xs font-mono-num">
+            <p id="sw-laps-empty" class="text-center text-slate-600 text-xs py-6">No recorded laps.</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 3. FIXED BOTTOM NAVIGATION BAR (SAFE AREA FIT) -->
+    <nav class="shrink-0 bg-slate-900/95 border-t border-slate-800 safe-bottom z-20">
+      <div class="grid grid-cols-5 h-14 items-center px-1">
+        
+        <!-- Calculator -->
+        <button onclick="switchTab('calculator')" id="nav-calculator" class="flex flex-col items-center justify-center text-emerald-400 tap-btn">
+          <div class="nav-pill w-10 h-6 rounded-full flex items-center justify-center bg-emerald-500/20 mb-0.5">
+            <span class="material-symbols-rounded text-base">calculate</span>
+          </div>
+          <span class="text-[9px] font-bold tracking-tight">Calc</span>
+        </button>
+
+        <!-- Age Suite -->
+        <button onclick="switchTab('age')" id="nav-age" class="flex flex-col items-center justify-center text-slate-400 hover:text-slate-200 tap-btn">
+          <div class="nav-pill w-10 h-6 rounded-full flex items-center justify-center mb-0.5">
+            <span class="material-symbols-rounded text-base">calendar_month</span>
+          </div>
+          <span class="text-[9px] font-medium tracking-tight">Age Suite</span>
+        </button>
+
+        <!-- Notepad -->
+        <button onclick="switchTab('notes')" id="nav-notes" class="flex flex-col items-center justify-center text-slate-400 hover:text-slate-200 tap-btn">
+          <div class="nav-pill w-10 h-6 rounded-full flex items-center justify-center mb-0.5">
+            <span class="material-symbols-rounded text-base">note_stack</span>
+          </div>
+          <span class="text-[9px] font-medium tracking-tight">Notes</span>
+        </button>
+
+        <!-- Alarm -->
+        <button onclick="switchTab('alarm')" id="nav-alarm" class="flex flex-col items-center justify-center text-slate-400 hover:text-slate-200 tap-btn">
+          <div class="nav-pill w-10 h-6 rounded-full flex items-center justify-center mb-0.5">
+            <span class="material-symbols-rounded text-base">alarm</span>
+          </div>
+          <span class="text-[9px] font-medium tracking-tight">Alarm</span>
+        </button>
+
+        <!-- Stopwatch -->
+        <button onclick="switchTab('stopwatch')" id="nav-stopwatch" class="flex flex-col items-center justify-center text-slate-400 hover:text-slate-200 tap-btn">
+          <div class="nav-pill w-10 h-6 rounded-full flex items-center justify-center mb-0.5">
+            <span class="material-symbols-rounded text-base">timer</span>
+          </div>
+          <span class="text-[9px] font-medium tracking-tight">Timer</span>
+        </button>
+
+      </div>
+    </nav>
+
+    <!-- ================= MODALS & OVERLAYS ================= -->
+
+    <!-- Note Editor Modal -->
+    <div id="modal-note-editor" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-3">
+      <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-sm p-4 space-y-3 shadow-2xl safe-bottom">
+        <div class="flex items-center justify-between">
+          <h3 id="modal-note-headline" class="text-sm font-bold text-white">Create Note</h3>
+          <button onclick="closeNoteModal()" class="text-slate-400 hover:text-white p-1">
+            <span class="material-symbols-rounded text-xl">close</span>
+          </button>
+        </div>
+
+        <input 
+          type="text" 
+          id="editor-title" 
+          placeholder="Title" 
+          maxlength="45"
+          class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+        />
+
+        <textarea 
+          id="editor-body" 
+          rows="5" 
+          placeholder="Write your note..." 
+          class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 resize-none leading-relaxed"
+        ></textarea>
+
+        <div class="flex justify-between items-center">
+          <label class="flex items-center space-x-2 text-xs text-slate-400 cursor-pointer">
+            <input type="checkbox" id="editor-pin" class="rounded accent-emerald-500">
+            <span>Pin note</span>
+          </label>
+          <div class="flex gap-2">
+            <button onclick="closeNoteModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 text-xs text-slate-300 tap-btn">Cancel</button>
+            <button onclick="saveNoteData()" class="px-4 py-1.5 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs tap-btn shadow-md shadow-emerald-500/20">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alarm Ringing Overlay -->
+    <div id="alarm-ring-modal" class="hidden fixed inset-0 z-50 bg-rose-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-pulse">
+      <div class="w-16 h-16 rounded-full bg-rose-500/30 flex items-center justify-center text-rose-300 mb-3 animate-bounce">
+        <span class="material-symbols-rounded text-4xl">alarm_on</span>
+      </div>
+      <h2 class="text-2xl font-black text-white uppercase tracking-tight">Alarm Ringing!</h2>
+      <p id="alarm-ring-label-text" class="text-rose-200 text-sm mt-1 font-medium">Wake up!</p>
+      <div id="alarm-ring-time-text" class="text-4xl font-mono-num font-extrabold text-white mt-2">07:00</div>
+
+      <button 
+        onclick="dismissRingingAlarm()" 
+        class="mt-6 px-8 py-3 bg-white text-rose-950 font-black rounded-2xl text-sm shadow-2xl tap-btn uppercase tracking-wider"
+      >
+        Dismiss Alarm
+      </button>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="modal-info" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-3">
+      <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-sm p-4 space-y-3 shadow-2xl safe-bottom text-xs">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-rounded text-emerald-400 text-xl">screen_lock_portrait</span>
+            <h3 class="font-bold text-white text-sm">Kiranbjadhav Mobile Hub</h3>
+          </div>
+          <button onclick="toggleInfo(false)" class="text-slate-400 hover:text-white p-1">
+            <span class="material-symbols-rounded text-lg">close</span>
+          </button>
+        </div>
+        <p class="text-slate-300 leading-relaxed">
+          Designed specifically to adapt to <strong class="text-emerald-400">100dvh</strong> mobile viewports without unwanted page overflow or horizontal scrolling.
+        </p>
+        <div class="bg-slate-800/60 p-2.5 rounded-xl space-y-1 text-slate-400 text-[11px]">
+          <p>✔ Calculator: Full height auto-stretched grid</p>
+          <p>✔ Age Suite: 5 Modes (Exact, Compare, Math, Milestones, Pet)</p>
+          <p>✔ Notes: Local storage saved with search & pin</p>
+          <p>✔ Alarm: Synthesized Web Audio chime</p>
+          <p>✔ Stopwatch: Millisecond splits & lap records</p>
+        </div>
+        <button onclick="toggleInfo(false)" class="w-full bg-emerald-500 text-slate-950 font-bold py-2 rounded-xl text-xs tap-btn">
+          Got It
+        </button>
+      </div>
+    </div>
+
+    <!-- Mini Toast -->
+    <div id="toast" class="pointer-events-none fixed bottom-16 left-1/2 -translate-x-1/2 bg-slate-800/95 text-white border border-slate-700 px-4 py-1.5 rounded-full text-xs opacity-0 transition-opacity duration-200 z-50 shadow-xl">
+      <span id="toast-msg">Notice</span>
+    </div>
+
+  </div>
+
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
+  <script>
+    /* Global Storage Keys */
+    const KEY_NOTES = "droid_fit_notes";
+    const KEY_ALARMS = "droid_fit_alarms";
+
+    /* Haptic Feedback Helper */
+    function haptic() {
+      if ("vibrate" in navigator) {
+        try { navigator.vibrate(25); } catch(e) {}
+      }
+    }
+
+    /* Toast Notification */
+    function notify(msg) {
+      const toast = document.getElementById('toast');
+      const text = document.getElementById('toast-msg');
+      text.textContent = msg;
+      toast.classList.remove('opacity-0');
+      toast.classList.add('opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0');
+      }, 2000);
+    }
+
+    function toggleInfo(show) {
+      document.getElementById('modal-info').classList.toggle('hidden', !show);
+    }
+
+    /* Tab Switcher */
+    const tabsList = [
+      { id: 'calculator', title: 'Calculator' },
+      { id: 'age', title: 'Age Suite' },
+      { id: 'notes', title: 'Notepad' },
+      { id: 'alarm', title: 'Alarm Clock' },
+      { id: 'stopwatch', title: 'Stopwatch' }
+    ];
+
+    function switchTab(tabId) {
+      haptic();
+      tabsList.forEach(t => {
+        const sec = document.getElementById(`tab-${t.id}`);
+        const btn = document.getElementById(`nav-${t.id}`);
+        const pill = btn.querySelector('.nav-pill');
+
+        if (t.id === tabId) {
+          sec.classList.remove('hidden');
+          btn.classList.add('text-emerald-400');
+          btn.classList.remove('text-slate-400');
+          pill.classList.add('bg-emerald-500/20');
+          document.getElementById('screen-title').innerText = t.title;
+        } else {
+          sec.classList.add('hidden');
+          btn.classList.remove('text-emerald-400');
+          btn.classList.add('text-slate-400');
+          pill.classList.remove('bg-emerald-500/20');
+        }
+      });
+    }
+
+    /* Live Clocks & Background Alarm Polling */
+    function tickClock() {
+      const now = new Date();
+      const timeShort = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('live-system-time').innerText = timeShort;
+
+      const fullTime = now.toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const alarmClockEl = document.getElementById('alarm-live-time');
+      if (alarmClockEl) alarmClockEl.innerText = fullTime;
+
+      const dateStr = now.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+      const alarmDateEl = document.getElementById('alarm-live-date');
+      if (alarmDateEl) alarmDateEl.innerText = dateStr;
+
+      pollAlarms(now);
+    }
+    setInterval(tickClock, 1000);
+
+    /* ==========================================================
+     * 1. CALCULATOR LOGIC (Auto-Fitting Grid)
+     * ========================================================== */
+    let calcStr = "0";
+    const calcValEl = document.getElementById('calc-val');
+    const calcTapeEl = document.getElementById('calc-tape');
+
+    function syncCalc() {
+      calcValEl.innerText = calcStr;
+    }
+
+    function calcInput(char) {
+      haptic();
+      const ops = ['+', '-', '*', '/', '%'];
+      const last = calcStr.slice(-1);
+
+      if (ops.includes(char) && ops.includes(last)) {
+        calcStr = calcStr.slice(0, -1) + char;
+        syncCalc();
+        return;
+      }
+
+      if (calcStr === "0" && !isNaN(char)) {
+        calcStr = char;
+      } else {
+        calcStr += char;
+      }
+      syncCalc();
+    }
+
+    function calcClear() {
+      haptic();
+      calcStr = "0";
+      calcTapeEl.innerText = "";
+      syncCalc();
+    }
+
+    function calcDel() {
+      haptic();
+      if (calcStr.length > 1) {
+        calcStr = calcStr.slice(0, -1);
+      } else {
+        calcStr = "0";
+      }
+      syncCalc();
+    }
+
+    function calcSolve() {
+      haptic();
+      try {
+        const sanitized = calcStr.replace(/[^0-9+\-*/.%]/g, '');
+        const res = Function(`'use strict'; return (${sanitized})`)();
+        const rounded = Math.round((res + Number.EPSILON) * 10000000) / 10000000;
+        calcTapeEl.innerText = calcStr + " =";
+        calcStr = String(rounded);
+        syncCalc();
+      } catch (err) {
+        calcValEl.innerText = "Error";
+        setTimeout(() => {
+          calcStr = "0";
+          syncCalc();
+        }, 1200);
+      }
+    }
+
+    /* ==========================================================
+     * 2. AGE CALCULATOR SUITE
+     * ========================================================== */
+    const ageSubModes = ['exact', 'compare', 'datecalc', 'milestones', 'pet'];
+    let liveTicker = null;
+
+    function setAgeSubMode(mode) {
+      haptic();
+      ageSubModes.forEach(m => {
+        const btn = document.getElementById(`sub-btn-${m}`);
+        const view = document.getElementById(`sub-${m}`);
+        if (m === mode) {
+          view.classList.remove('hidden');
+          btn.className = "shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500 text-slate-950 shadow-sm tap-btn";
+        } else {
+          view.classList.add('hidden');
+          btn.className = "shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-400 tap-btn";
+        }
+      });
+    }
+
+    function getZodiacData(m, d) {
+      const zData = [
+        { name: "Capricorn", icon: "♑", trait: "Disciplined & focused", sM: 1, sD: 1, eM: 1, eD: 19 },
+        { name: "Aquarius", icon: "♒", trait: "Original & humanitarian", sM: 1, sD: 20, eM: 2, eD: 18 },
+        { name: "Pisces", icon: "♓", trait: "Empathetic & intuitive", sM: 2, sD: 19, eM: 3, eD: 20 },
+        { name: "Aries", icon: "♈", trait: "Bold & enthusiastic", sM: 3, sD: 21, eM: 4, eD: 19 },
+        { name: "Taurus", icon: "♉", trait: "Patient & reliable", sM: 4, sD: 20, eM: 5, eD: 20 },
+        { name: "Gemini", icon: "♊", trait: "Adaptable & curious", sM: 5, sD: 21, eM: 6, eD: 20 },
+        { name: "Cancer", icon: "♋", trait: "Intuitive & caring", sM: 6, sD: 21, eM: 7, eD: 22 },
+        { name: "Leo", icon: "♌", trait: "Generous & charismatic", sM: 7, sD: 23, eM: 8, eD: 22 },
+        { name: "Virgo", icon: "♍", trait: "Meticulous & analytical", sM: 8, sD: 23, eM: 9, eD: 22 },
+        { name: "Libra", icon: "♎", trait: "Diplomatic & artistic", sM: 9, sD: 23, eM: 10, eD: 22 },
+        { name: "Scorpio", icon: "♏", trait: "Passionate & strategic", sM: 10, sD: 23, eM: 11, eD: 21 },
+        { name: "Sagittarius", icon: "♐", trait: "Optimistic & adventurous", sM: 11, sD: 22, eM: 12, eD: 21 },
+        { name: "Capricorn", icon: "♑", trait: "Disciplined & focused", sM: 12, sD: 22, eM: 12, eD: 31 }
+      ];
+      for (const z of zData) {
+        if ((m === z.sM && d >= z.sD) || (m === z.eM && d <= z.eD)) return z;
+      }
+      return zData[0];
+    }
+
+    function getChineseZodiacData(yr) {
+      const animals = [
+        { name: "Monkey", icon: "🐒" }, { name: "Rooster", icon: "🐓" },
+        { name: "Dog", icon: "🐕" }, { name: "Pig", icon: "🐖" },
+        { name: "Rat", icon: "🐀" }, { name: "Ox", icon: "🐂" },
+        { name: "Tiger", icon: "🐅" }, { name: "Rabbit", icon: "🐇" },
+        { name: "Dragon", icon: "🐉" }, { name: "Snake", icon: "🐍" },
+        { name: "Horse", icon: "🐎" }, { name: "Goat", icon: "🐐" }
+      ];
+      const elements = ["Wood", "Wood", "Fire", "Fire", "Earth", "Earth", "Metal", "Metal", "Water", "Water"];
+      return {
+        name: animals[yr % 12].name,
+        icon: animals[yr % 12].icon,
+        element: `${elements[(yr - 4) % 10] || "Universal"} Element`
+      };
+    }
+
+    function runExactAgeCalc() {
+      haptic();
+      const dobVal = document.getElementById('age-dob').value;
+      const targetVal = document.getElementById('age-target-date').value;
+
+      if (!dobVal) {
+        notify("Please pick Date of Birth");
+        return;
+      }
+
+      const birth = new Date(dobVal + "T00:00:00");
+      const target = targetVal ? new Date(targetVal + "T23:59:59") : new Date();
+
+      if (birth > target) {
+        notify("DOB cannot be ahead of target date");
+        return;
+      }
+
+      let y = target.getFullYear() - birth.getFullYear();
+      let m = target.getMonth() - birth.getMonth();
+      let d = target.getDate() - birth.getDate();
+
+      if (d < 0) {
+        m--;
+        const prevMonth = new Date(target.getFullYear(), target.getMonth(), 0);
+        d += prevMonth.getDate();
+      }
+      if (m < 0) {
+        y--;
+        m += 12;
+      }
+
+      document.getElementById('res-years').innerText = y;
+      document.getElementById('res-months').innerText = m;
+      document.getElementById('res-days').innerText = d;
+
+      // Zodiacs
+      const z = getZodiacData(birth.getMonth() + 1, birth.getDate());
+      document.getElementById('res-zodiac-icon').innerText = z.icon;
+      document.getElementById('res-zodiac-name').innerText = z.name;
+      document.getElementById('res-zodiac-trait').innerText = z.trait;
+
+      const cz = getChineseZodiacData(birth.getFullYear());
+      document.getElementById('res-chinese-icon').innerText = cz.icon;
+      document.getElementById('res-chinese-name').innerText = cz.name;
+      document.getElementById('res-chinese-element').innerText = cz.element;
+
+      // Next birthday countdown & forecast
+      const nextBday = new Date(target.getFullYear(), birth.getMonth(), birth.getDate());
+      if (target > nextBday) {
+        nextBday.setFullYear(target.getFullYear() + 1);
+      }
+      const daysLeft = Math.ceil((nextBday - target) / (1000 * 60 * 60 * 24));
+      document.getElementById('res-nextbday-date').innerText = nextBday.toLocaleDateString([], { month: 'short', day: 'numeric' });
+      document.getElementById('res-nextbday-countdown').innerText = `${daysLeft} days`;
+
+      const forecastEl = document.getElementById('res-bday-forecast');
+      forecastEl.innerHTML = "";
+      const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      for (let i = 0; i < 5; i++) {
+        const fy = nextBday.getFullYear() + i;
+        const fd = new Date(fy, birth.getMonth(), birth.getDate());
+        const tag = document.createElement('div');
+        tag.className = "bg-slate-900/80 p-1 rounded border border-slate-700/40";
+        tag.innerHTML = `<span class="text-slate-500 block text-[8px]">${fy}</span><span class="text-emerald-400 font-bold">${weekdays[fd.getDay()]}</span>`;
+        forecastEl.appendChild(tag);
+      }
+
+      // Stats
+      const totalDays = Math.floor((target - birth) / (1000 * 60 * 60 * 24));
+      document.getElementById('res-stat-heart').innerText = (totalDays * 24 * 60 * 80).toLocaleString();
+      document.getElementById('res-stat-breath').innerText = (totalDays * 24 * 60 * 16).toLocaleString();
+
+      // Live alive counter
+      if (liveTicker) clearInterval(liveTicker);
+      const updateLive = () => {
+        const ms = new Date() - birth;
+        const hrs = Math.floor((ms / (1000 * 60 * 60)) % 24);
+        const mins = Math.floor((ms / (1000 * 60)) % 60);
+        const secs = Math.floor((ms / 1000) % 60);
+        const el = document.getElementById('live-time-ticker');
+        if (el) el.innerText = `${String(hrs).padStart(2,'0')}h ${String(mins).padStart(2,'0')}m ${String(secs).padStart(2,'0')}s`;
+      };
+      updateLive();
+      liveTicker = setInterval(updateLive, 1000);
+
+      document.getElementById('exact-result-card').classList.remove('hidden');
+    }
+
+    function runCompareCalc() {
+      haptic();
+      const p1 = document.getElementById('compare-p1-dob').value;
+      const p2 = document.getElementById('compare-p2-dob').value;
+      if (!p1 || !p2) {
+        notify("Please choose both dates");
+        return;
+      }
+      const d1 = new Date(p1 + "T00:00:00");
+      const d2 = new Date(p2 + "T00:00:00");
+
+      if (d1.getTime() === d2.getTime()) {
+        document.getElementById('comp-banner').innerText = "Both born on exact same day!";
+        document.getElementById('comp-diff-y').innerText = "0";
+        document.getElementById('comp-diff-m').innerText = "0";
+        document.getElementById('comp-diff-d').innerText = "0";
+        document.getElementById('comp-total-days').innerText = "0 days difference";
+        document.getElementById('compare-result-card').classList.remove('hidden');
+        return;
+      }
+
+      const older = d1 < d2 ? "Person A" : "Person B";
+      const olderD = d1 < d2 ? d1 : d2;
+      const youngerD = d1 < d2 ? d2 : d1;
+
+      let y = youngerD.getFullYear() - olderD.getFullYear();
+      let m = youngerD.getMonth() - olderD.getMonth();
+      let d = youngerD.getDate() - olderD.getDate();
+
+      if (d < 0) {
+        m--;
+        const prevMonth = new Date(youngerD.getFullYear(), youngerD.getMonth(), 0);
+        d += prevMonth.getDate();
+      }
+      if (m < 0) {
+        y--;
+        m += 12;
+      }
+
+      const totalDiff = Math.floor(Math.abs(d2 - d1) / (1000 * 60 * 60 * 24));
+      document.getElementById('comp-banner').innerText = `${older} is older!`;
+      document.getElementById('comp-diff-y').innerText = y;
+      document.getElementById('comp-diff-m').innerText = m;
+      document.getElementById('comp-diff-d').innerText = d;
+      document.getElementById('comp-total-days').innerText = `Total difference: ${totalDiff.toLocaleString()} days`;
+
+      document.getElementById('compare-result-card').classList.remove('hidden');
+    }
+
+    function runDateDeltaCalc() {
+      haptic();
+      const start = document.getElementById('datecalc-start').value;
+      const op = document.getElementById('datecalc-op').value;
+      const unit = document.getElementById('datecalc-unit').value;
+      const amount = parseInt(document.getElementById('datecalc-amount').value, 10);
+
+      if (!start || isNaN(amount)) {
+        notify("Fill date and quantity");
+        return;
+      }
+
+      const res = new Date(start + "T00:00:00");
+      const sign = op === 'add' ? 1 : -1;
+
+      if (unit === 'days') res.setDate(res.getDate() + (amount * sign));
+      else if (unit === 'weeks') res.setDate(res.getDate() + (amount * 7 * sign));
+      else if (unit === 'months') res.setMonth(res.getMonth() + (amount * sign));
+      else if (unit === 'years') res.setFullYear(res.getFullYear() + (amount * sign));
+
+      document.getElementById('datecalc-res-date').innerText = res.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' });
+      document.getElementById('datecalc-res-day').innerText = res.toLocaleDateString([], { weekday: 'long' });
+      document.getElementById('datecalc-result-card').classList.remove('hidden');
+    }
+
+    function runMilestonesCalc() {
+      haptic();
+      const val = document.getElementById('milestones-dob').value;
+      if (!val) {
+        notify("Enter DOB");
+        return;
+      }
+      const b = new Date(val + "T00:00:00");
+      const now = new Date();
+
+      const half = new Date(now.getFullYear(), b.getMonth() + 6, b.getDate());
+      let nextHalf = now > half ? new Date(now.getFullYear() + 1, b.getMonth() + 6, b.getDate()) : half;
+      document.getElementById('ms-halfbday').innerText = nextHalf.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+
+      const d10 = new Date(b.getTime() + (10000 * 86400000));
+      document.getElementById('ms-10k').innerText = d10.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+      document.getElementById('ms-10k-tag').innerText = now >= d10 ? "Passed" : "Upcoming";
+
+      const d20 = new Date(b.getTime() + (20000 * 86400000));
+      document.getElementById('ms-20k').innerText = d20.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+      document.getElementById('ms-20k-tag').innerText = now >= d20 ? "Passed" : "Upcoming";
+
+      const dBillion = new Date(b.getTime() + (1000000000 * 1000));
+      document.getElementById('ms-billion').innerText = dBillion.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+      document.getElementById('ms-billion-tag').innerText = now >= dBillion ? "Achieved!" : "Upcoming";
+
+      document.getElementById('milestones-card').classList.remove('hidden');
+    }
+
+    let petSpecies = 'dog';
+    function setPetChoice(type) {
+      haptic();
+      petSpecies = type;
+      const dBtn = document.getElementById('pet-choice-dog');
+      const cBtn = document.getElementById('pet-choice-cat');
+      const dContainer = document.getElementById('dog-size-container');
+
+      if (type === 'dog') {
+        dBtn.className = "py-2 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950 flex items-center justify-center gap-1.5 tap-btn";
+        cBtn.className = "py-2 rounded-xl text-xs font-bold bg-slate-900 text-slate-400 tap-btn flex items-center justify-center gap-1.5";
+        dContainer.classList.remove('hidden');
+      } else {
+        cBtn.className = "py-2 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950 flex items-center justify-center gap-1.5 tap-btn";
+        dBtn.className = "py-2 rounded-xl text-xs font-bold bg-slate-900 text-slate-400 tap-btn flex items-center justify-center gap-1.5";
+        dContainer.classList.add('hidden');
+      }
+      calcPetEquiv();
+    }
+
+    function calcPetEquiv() {
+      const age = parseInt(document.getElementById('pet-slider').value, 10);
+      document.getElementById('pet-slider-val').innerText = `${age} ${age === 1 ? 'year' : 'years'}`;
+
+      let humanYears = 0;
+      let stage = "Adult";
+
+      if (petSpecies === 'cat') {
+        if (age === 1) humanYears = 15;
+        else if (age === 2) humanYears = 24;
+        else humanYears = 24 + ((age - 2) * 4);
+
+        if (age <= 2) stage = "Junior Cat";
+        else if (age <= 6) stage = "Prime Adult";
+        else stage = "Senior Cat";
+      } else {
+        const size = document.getElementById('dog-size-select').value;
+        if (age === 1) humanYears = 15;
+        else if (age === 2) humanYears = 24;
+        else {
+          const factor = size === 'small' ? 4 : (size === 'medium' ? 5 : 7);
+          humanYears = 24 + ((age - 2) * factor);
+        }
+
+        if (age <= 2) stage = "Puppy / Young";
+        else if (age <= 6) stage = "Adult Dog";
+        else stage = "Senior Dog";
+      }
+
+      document.getElementById('pet-human-val').innerText = humanYears;
+      document.getElementById('pet-stage-val').innerText = stage;
+    }
+
+    /* ==========================================================
+     * 3. NOTEPAD LOGIC (LocalStorage, Search & Pin)
+     * ========================================================== */
+    let notes = [];
+    let currentEditId = null;
+
+    function initNotes() {
+      try {
+        const raw = localStorage.getItem(KEY_NOTES);
+        notes = raw ? JSON.parse(raw) : [
+          {
+            id: 1,
+            title: "Screen-Fit Mobile Layout",
+            body: "The layout automatically adapts to any phone screen size with 100% viewport fit and zero awkward scrolling.",
+            pinned: true,
+            timestamp: Date.now()
+          }
+        ];
+      } catch (e) {
+        notes = [];
+      }
+      displayNotes();
+    }
+
+    function persistNotes() {
+      try {
+        localStorage.setItem(KEY_NOTES, JSON.stringify(notes));
+      } catch (e) {}
+      displayNotes();
+    }
+
+    function openNoteModal(id = null) {
+      haptic();
+      currentEditId = id;
+      const modal = document.getElementById('modal-note-editor');
+      const head = document.getElementById('modal-note-headline');
+      const tInput = document.getElementById('editor-title');
+      const bInput = document.getElementById('editor-body');
+      const pInput = document.getElementById('editor-pin');
+
+      if (id) {
+        const n = notes.find(item => item.id === id);
+        if (n) {
+          head.innerText = "Edit Note";
+          tInput.value = n.title;
+          bInput.value = n.body;
+          pInput.checked = !!n.pinned;
+        }
+      } else {
+        head.innerText = "New Note";
+        tInput.value = "";
+        bInput.value = "";
+        pInput.checked = false;
+      }
+      modal.classList.remove('hidden');
+    }
+
+    function closeNoteModal() {
+      document.getElementById('modal-note-editor').classList.add('hidden');
+      currentEditId = null;
+    }
+
+    function saveNoteData() {
+      haptic();
+      const title = document.getElementById('editor-title').value.trim();
+      const body = document.getElementById('editor-body').value.trim();
+      const pinned = document.getElementById('editor-pin').checked;
+
+      if (!title && !body) {
+        notify("Note cannot be empty");
+        return;
+      }
+
+      if (currentEditId) {
+        notes = notes.map(n => n.id === currentEditId ? { ...n, title: title || "Untitled Note", body, pinned, timestamp: Date.now() } : n);
+        notify("Note updated");
+      } else {
+        notes.unshift({ id: Date.now(), title: title || "Untitled Note", body, pinned, timestamp: Date.now() });
+        notify("Note created");
+      }
+
+      closeNoteModal();
+      persistNotes();
+    }
+
+    function deleteNoteItem(id) {
+      haptic();
+      notes = notes.filter(n => n.id !== id);
+      persistNotes();
+      notify("Note removed");
+    }
+
+    function togglePinItem(id) {
+      haptic();
+      notes = notes.map(n => n.id === id ? { ...n, pinned: !n.pinned } : n);
+      persistNotes();
+    }
+
+    function copyNoteContent(body) {
+      haptic();
+      const el = document.createElement("textarea");
+      el.value = body;
+      document.body.appendChild(el);
+      el.select();
+      try {
+        document.execCommand('copy');
+        notify("Copied to clipboard");
+      } catch (e) {
+        notify("Copy failed");
+      }
+      document.body.removeChild(el);
+    }
+
+    function filterNotesList() {
+      const q = document.getElementById('notes-search').value.toLowerCase();
+      displayNotes(q);
+    }
+
+    function displayNotes(query = "") {
+      const box = document.getElementById('notes-container');
+      const empty = document.getElementById('notes-none');
+      box.innerHTML = "";
+
+      let items = [...notes].sort((a, b) => (a.pinned === b.pinned ? b.timestamp - a.timestamp : a.pinned ? -1 : 1));
+
+      if (query) {
+        items = items.filter(n => n.title.toLowerCase().includes(query) || n.body.toLowerCase().includes(query));
+      }
+
+      if (items.length === 0) {
+        empty.classList.remove('hidden');
+        return;
+      } else {
+        empty.classList.add('hidden');
+      }
+
+      items.forEach(note => {
+        const card = document.createElement('div');
+        card.className = `p-3 rounded-2xl border transition-all ${note.pinned ? 'bg-slate-800/90 border-emerald-500/40' : 'bg-slate-800/50 border-slate-700/60'}`;
+        const dt = new Date(note.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric' });
+
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-1.5">
+            <h4 class="text-xs font-bold text-white tracking-tight flex items-center gap-1 break-all">
+              ${note.pinned ? '<span class="material-symbols-rounded text-emerald-400 text-sm">push_pin</span>' : ''}
+              ${escapeText(note.title)}
+            </h4>
+            <div class="flex items-center space-x-1 shrink-0">
+              <button onclick="togglePinItem(${note.id})" class="text-slate-400 hover:text-emerald-400 p-0.5 tap-btn">
+                <span class="material-symbols-rounded text-base">${note.pinned ? 'keep_off' : 'push_pin'}</span>
+              </button>
+              <button onclick="openNoteModal(${note.id})" class="text-slate-400 hover:text-white p-0.5 tap-btn">
+                <span class="material-symbols-rounded text-base">edit</span>
+              </button>
+              <button onclick="deleteNoteItem(${note.id})" class="text-slate-400 hover:text-rose-400 p-0.5 tap-btn">
+                <span class="material-symbols-rounded text-base">delete</span>
+              </button>
+            </div>
+          </div>
+          <p class="text-xs text-slate-300 mt-1 whitespace-pre-wrap leading-relaxed line-clamp-3">${escapeText(note.body)}</p>
+          <div class="mt-2 flex justify-between items-center text-[9px] text-slate-500">
+            <span>${dt}</span>
+            <button onclick="copyNoteContent(\`${escapeText(note.body).replace(/`/g, '\\`')}\`)" class="text-slate-400 hover:text-emerald-400 flex items-center gap-1 tap-btn">
+              <span class="material-symbols-rounded text-xs">content_copy</span>
+              <span>Copy</span>
+            </button>
+          </div>
+        `;
+        box.appendChild(card);
+      });
+    }
+
+    /* ==========================================================
+     * 4. ALARM CLOCK & SYNTHESIZER
+     * ========================================================== */
+    let alarms = [];
+    let audioContext = null;
+    let alarmPollId = null;
+    let activeRingingItem = null;
+
+    function playSynthesizedBeep() {
+      try {
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioContext.state === 'suspended') {
+          audioContext.resume();
+        }
+
+        const now = audioContext.currentTime;
+        const freqs = [587.33, 880, 1174.66, 880];
+
+        freqs.forEach((freq, idx) => {
+          const osc = audioContext.createOscillator();
+          const gain = audioContext.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + (idx * 0.14));
+
+          gain.gain.setValueAtTime(0.001, now + (idx * 0.14));
+          gain.gain.exponentialRampToValueAtTime(0.25, now + (idx * 0.14) + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.14) + 0.3);
+
+          osc.connect(gain);
+          gain.connect(audioContext.destination);
+
+          osc.start(now + (idx * 0.14));
+          osc.stop(now + (idx * 0.14) + 0.35);
+        });
+      } catch (err) {}
+    }
+
+    function initAlarms() {
+      try {
+        const raw = localStorage.getItem(KEY_ALARMS);
+        alarms = raw ? JSON.parse(raw) : [
+          { id: 1, time: "07:00", label: "Wake up", enabled: true }
+        ];
+      } catch (e) {
+        alarms = [];
+      }
+      displayAlarms();
+    }
+
+    function persistAlarms() {
+      try {
+        localStorage.setItem(KEY_ALARMS, JSON.stringify(alarms));
+      } catch (e) {}
+      displayAlarms();
+    }
+
+    function createNewAlarm() {
+      haptic();
+      const timeVal = document.getElementById('alarm-input-time').value;
+      const labelVal = document.getElementById('alarm-input-label').value.trim() || "Alarm";
+
+      if (!timeVal) {
+        notify("Select an alarm time");
+        return;
+      }
+
+      alarms.push({ id: Date.now(), time: timeVal, label: labelVal, enabled: true });
+      document.getElementById('alarm-input-label').value = "";
+      persistAlarms();
+      notify(`Alarm set for ${timeVal}`);
+    }
+
+    function toggleAlarmState(id) {
+      haptic();
+      alarms = alarms.map(a => a.id === id ? { ...a, enabled: !a.enabled } : a);
+      persistAlarms();
+    }
+
+    function removeAlarmItem(id) {
+      haptic();
+      alarms = alarms.filter(a => a.id !== id);
+      persistAlarms();
+      notify("Alarm deleted");
+    }
+
+    function displayAlarms() {
+      const list = document.getElementById('alarm-list-container');
+      const badge = document.getElementById('alarm-badge-count');
+      list.innerHTML = "";
+
+      const activeCount = alarms.filter(a => a.enabled).length;
+      badge.innerText = `${activeCount} active`;
+
+      if (alarms.length === 0) {
+        list.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No alarms set.</p>`;
+        return;
+      }
+
+      alarms.forEach(a => {
+        const row = document.createElement('div');
+        row.className = "flex items-center justify-between p-2.5 bg-slate-800/50 border border-slate-700/60 rounded-xl";
+        row.innerHTML = `
+          <div>
+            <span class="text-xl font-mono-num font-bold ${a.enabled ? 'text-white' : 'text-slate-500'}">${a.time}</span>
+            <p class="text-[10px] ${a.enabled ? 'text-emerald-400' : 'text-slate-500'}">${escapeText(a.label)}</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="toggleAlarmState(${a.id})" class="w-10 h-5 rounded-full transition-colors p-0.5 ${a.enabled ? 'bg-emerald-500' : 'bg-slate-700'} flex items-center tap-btn">
+              <div class="w-4 h-4 rounded-full bg-slate-950 transition-transform ${a.enabled ? 'translate-x-5' : 'translate-x-0'}"></div>
+            </button>
+            <button onclick="removeAlarmItem(${a.id})" class="text-slate-500 hover:text-rose-400 p-0.5 tap-btn">
+              <span class="material-symbols-rounded text-base">close</span>
+            </button>
+          </div>
+        `;
+        list.appendChild(row);
+      });
+    }
+
+    let lastRingCheckMinute = "";
+    function pollAlarms(nowDate) {
+      const curMinute = nowDate.toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit' });
+      if (curMinute === lastRingCheckMinute) return;
+      lastRingCheckMinute = curMinute;
+
+      alarms.forEach(a => {
+        if (a.enabled && a.time === curMinute) {
+          triggerAlarmSound(a);
+        }
+      });
+    }
+
+    function triggerAlarmSound(alarm) {
+      activeRingingItem = alarm;
+      document.getElementById('alarm-ring-label-text').innerText = alarm.label;
+      document.getElementById('alarm-ring-time-text').innerText = alarm.time;
+      document.getElementById('alarm-ring-modal').classList.remove('hidden');
+
+      playSynthesizedBeep();
+      if (alarmPollId) clearInterval(alarmPollId);
+      alarmPollId = setInterval(() => {
+        playSynthesizedBeep();
+        if ("vibrate" in navigator) {
+          try { navigator.vibrate([200, 100, 200]); } catch(e) {}
+        }
+      }, 1000);
+    }
+
+    function dismissRingingAlarm() {
+      if (alarmPollId) {
+        clearInterval(alarmPollId);
+        alarmPollId = null;
+      }
+      document.getElementById('alarm-ring-modal').classList.add('hidden');
+      if (activeRingingItem) {
+        toggleAlarmState(activeRingingItem.id);
+        activeRingingItem = null;
+      }
+    }
+
+    /* ==========================================================
+     * 5. STOPWATCH LOGIC (Millisecond Splits)
+     * ========================================================== */
+    let swIsActive = false;
+    let swStartTimestamp = 0;
+    let swAccumulatedTime = 0;
+    let swLoopInterval = null;
+    let swLapsData = [];
+    let swPreviousLapTime = 0;
+
+    function parseTimeDigits(ms) {
+      const m = Math.floor(ms / 60000);
+      const s = Math.floor((ms % 60000) / 1000);
+      const milli = Math.floor((ms % 1000) / 10);
+      return {
+        m: String(m).padStart(2, '0'),
+        s: String(s).padStart(2, '0'),
+        ms: String(milli).padStart(2, '0')
+      };
+    }
+
+    function renderSwDisplay() {
+      const parts = parseTimeDigits(swAccumulatedTime);
+      document.getElementById('sw-min').innerText = parts.m;
+      document.getElementById('sw-sec').innerText = parts.s;
+      document.getElementById('sw-ms').innerText = parts.ms;
+    }
+
+    function toggleSwRun() {
+      haptic();
+      const btn = document.getElementById('sw-btn-toggle');
+      const txt = document.getElementById('sw-text-toggle');
+      const icon = document.getElementById('sw-icon-toggle');
+      const lapBtn = document.getElementById('sw-btn-lap');
+
+      if (!swIsActive) {
+        swIsActive = true;
+        swStartTimestamp = Date.now() - swAccumulatedTime;
+        swLoopInterval = setInterval(() => {
+          swAccumulatedTime = Date.now() - swStartTimestamp;
+          renderSwDisplay();
+        }, 35);
+
+        btn.className = "py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-2xl text-xs tap-btn flex items-center justify-center gap-1 shadow-lg shadow-amber-500/20";
+        txt.innerText = "Pause";
+        icon.innerText = "pause";
+        lapBtn.disabled = false;
+      } else {
+        swIsActive = false;
+        clearInterval(swLoopInterval);
+        btn.className = "py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-2xl text-xs tap-btn flex items-center justify-center gap-1 shadow-lg shadow-emerald-500/25";
+        txt.innerText = "Resume";
+        icon.innerText = "play_arrow";
+      }
+    }
+
+    function triggerSwReset() {
+      haptic();
+      swIsActive = false;
+      clearInterval(swLoopInterval);
+      swAccumulatedTime = 0;
+      swPreviousLapTime = 0;
+      swLapsData = [];
+      renderSwDisplay();
+
+      const btn = document.getElementById('sw-btn-toggle');
+      btn.className = "py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-2xl text-xs tap-btn flex items-center justify-center gap-1 shadow-lg shadow-emerald-500/25";
+      document.getElementById('sw-text-toggle').innerText = "Start";
+      document.getElementById('sw-icon-toggle').innerText = "play_arrow";
+      document.getElementById('sw-btn-lap').disabled = true;
+
+      renderSwLaps();
+    }
+
+    function triggerSwLap() {
+      if (!swIsActive) return;
+      haptic();
+      const lapDuration = swAccumulatedTime - swPreviousLapTime;
+      swPreviousLapTime = swAccumulatedTime;
+
+      swLapsData.unshift({
+        num: swLapsData.length + 1,
+        lapTime: lapDuration,
+        totalTime: swAccumulatedTime
+      });
+
+      renderSwLaps();
+    }
+
+    function renderSwLaps() {
+      const box = document.getElementById('sw-laps-list');
+      if (swLapsData.length === 0) {
+        box.innerHTML = `<p id="sw-laps-empty" class="text-center text-slate-600 text-xs py-6">No recorded laps.</p>`;
+        return;
+      }
+      box.innerHTML = "";
+
+      let fastest = Infinity;
+      let slowest = -Infinity;
+      if (swLapsData.length >= 2) {
+        swLapsData.forEach(l => {
+          if (l.lapTime < fastest) fastest = l.lapTime;
+          if (l.lapTime > slowest) slowest = l.lapTime;
+        });
+      }
+
+      swLapsData.forEach(lap => {
+        const lp = parseTimeDigits(lap.lapTime);
+        const tp = parseTimeDigits(lap.totalTime);
+
+        let color = "text-slate-300";
+        if (swLapsData.length >= 2) {
+          if (lap.lapTime === fastest) color = "text-emerald-400 font-bold";
+          else if (lap.lapTime === slowest) color = "text-rose-400 font-bold";
+        }
+
+        const item = document.createElement('div');
+        item.className = "flex justify-between items-center py-1.5 px-2 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px]";
+        item.innerHTML = `
+          <span class="text-slate-500">#${String(lap.num).padStart(2, '0')}</span>
+          <span class="${color}">+${lp.m}:${lp.s}.${lp.ms}</span>
+          <span class="text-slate-400">${tp.m}:${tp.s}.${tp.ms}</span>
+        `;
+        box.appendChild(item);
+      });
+    }
+
+    /* Helper: Escape text to avoid injection */
+    function escapeText(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    /* Initialization on DOM Ready */
+    window.addEventListener('DOMContentLoaded', () => {
+      const todayISO = new Date().toISOString().split('T')[0];
+
+      const dobInput = document.getElementById('age-dob');
+      if (dobInput) dobInput.max = todayISO;
+
+      const targetInput = document.getElementById('age-target-date');
+      if (targetInput) targetInput.value = todayISO;
+
+      const datecalcStart = document.getElementById('datecalc-start');
+      if (datecalcStart) datecalcStart.value = todayISO;
+
+      const p1Input = document.getElementById('compare-p1-dob');
+      const p2Input = document.getElementById('compare-p2-dob');
+      if (p1Input) p1Input.max = todayISO;
+      if (p2Input) p2Input.max = todayISO;
+
+      const msDob = document.getElementById('milestones-dob');
+      if (msDob) msDob.max = todayISO;
+
+      // Default alarm time to next rounded hour
+      const nextH = new Date();
+      nextH.setHours(nextH.getHours() + 1);
+      nextH.setMinutes(0);
+      const alarmInput = document.getElementById('alarm-input-time');
+      if (alarmInput) alarmInput.value = nextH.toTimeString().slice(0, 5);
+
+      initNotes();
+      initAlarms();
+      tickClock();
+      renderSwDisplay();
+      calcPetEquiv();
+    });
+  </script>
+</body>
+</html>
